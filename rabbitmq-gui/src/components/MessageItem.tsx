@@ -29,17 +29,19 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
   const isOrder = parsed?.order_id;
   const isAlert = parsed?.stock_level !== undefined;
 
-  // Modern color schemes
+  // Dark mode solid color schemes
   const colors = {
     orders: {
-      bg: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      badge: '#667eea',
-      text: '#ffffff'
+      bg: '#3b82f6',
+      badge: '#3b82f6',
+      text: '#ffffff',
+      borderColor: 'rgba(59, 130, 246, 0.3)'
     },
     alerts: {
-      bg: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-      badge: '#f5576c',
-      text: '#ffffff'
+      bg: '#eab308',
+      badge: '#eab308',
+      text: '#ffffff',
+      borderColor: 'rgba(234, 179, 8, 0.3)'
     }
   };
 
@@ -49,23 +51,24 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
   return (
     <div style={{
       margin: '12px 0',
-      borderRadius: '16px',
-      background: '#ffffff',
-      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)',
+      borderRadius: '14px',
+      background: 'rgba(26, 26, 26, 0.6)',
+      backdropFilter: 'blur(20px)',
+      boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
       overflow: 'hidden',
       transition: 'transform 0.2s, box-shadow 0.2s',
       cursor: 'pointer',
-      border: '1px solid rgba(0, 0, 0, 0.06)'
+      border: `1px solid ${theme.borderColor}`
     }}
     onMouseEnter={(e) => {
       e.currentTarget.style.transform = 'translateY(-2px)';
-      e.currentTarget.style.boxShadow = '0 8px 20px rgba(0, 0, 0, 0.12)';
+      e.currentTarget.style.boxShadow = '0 8px 24px rgba(0, 0, 0, 0.6)';
     }}
     onMouseLeave={(e) => {
       e.currentTarget.style.transform = 'translateY(0)';
-      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.08)';
+      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.4)';
     }}>
-      {/* Header con gradiente */}
+      {/* Header con color sólido */}
       <div style={{
         background: theme.bg,
         padding: '16px 20px',
@@ -78,7 +81,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
             width: '40px',
             height: '40px',
             borderRadius: '10px',
-            background: 'rgba(255, 255, 255, 0.2)',
+            background: 'rgba(0, 0, 0, 0.2)',
             backdropFilter: 'blur(10px)',
             display: 'flex',
             alignItems: 'center',
@@ -108,7 +111,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
                 width: '6px',
                 height: '6px',
                 borderRadius: '50%',
-                background: isSent ? '#4ade80' : '#fbbf24'
+                background: isSent ? '#22c55e' : '#eab308'
               }}></span>
               {isSent ? 'Enviado' : 'Recibido'}
             </div>
@@ -118,7 +121,7 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
           color: 'rgba(255, 255, 255, 0.95)',
           fontSize: '13px',
           fontWeight: '500',
-          background: 'rgba(255, 255, 255, 0.15)',
+          background: 'rgba(0, 0, 0, 0.25)',
           padding: '6px 12px',
           borderRadius: '8px',
           backdropFilter: 'blur(10px)'
@@ -132,13 +135,13 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
         {isOrder && (
           <div style={{ display: 'grid', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500' }}>ID Pedido</span>
+              <span style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '500' }}>ID Pedido</span>
               <span style={{ 
-                color: '#111827', 
+                color: '#ffffff', 
                 fontSize: '15px', 
                 fontWeight: '600',
                 fontFamily: 'monospace',
-                background: '#f3f4f6',
+                background: 'rgba(59, 130, 246, 0.2)',
                 padding: '4px 10px',
                 borderRadius: '6px'
               }}>
@@ -146,19 +149,19 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500' }}>Cliente</span>
-              <span style={{ color: '#111827', fontSize: '15px', fontWeight: '600' }}>
+              <span style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '500' }}>Cliente</span>
+              <span style={{ color: '#ffffff', fontSize: '15px', fontWeight: '600' }}>
                 👤 {parsed.user}
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500' }}>Producto</span>
-              <span style={{ color: '#111827', fontSize: '15px', fontWeight: '600' }}>
+              <span style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '500' }}>Producto</span>
+              <span style={{ color: '#ffffff', fontSize: '15px', fontWeight: '600' }}>
                 ☕ {parsed.item}
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500' }}>Cantidad</span>
+              <span style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '500' }}>Cantidad</span>
               <span style={{ 
                 color: '#ffffff',
                 background: theme.badge,
@@ -176,15 +179,15 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
         {isAlert && (
           <div style={{ display: 'grid', gap: '12px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500' }}>Producto</span>
-              <span style={{ color: '#111827', fontSize: '15px', fontWeight: '600' }}>
+              <span style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '500' }}>Producto</span>
+              <span style={{ color: '#ffffff', fontSize: '15px', fontWeight: '600' }}>
                 📦 {parsed.item}
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500' }}>Stock Actual</span>
+              <span style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '500' }}>Stock Actual</span>
               <span style={{ 
-                color: parsed.stock_level < parsed.threshold ? '#dc2626' : '#059669',
+                color: parsed.stock_level < parsed.threshold ? '#ef4444' : '#22c55e',
                 fontSize: '20px',
                 fontWeight: '700'
               }}>
@@ -192,8 +195,8 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
               </span>
             </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ color: '#6b7280', fontSize: '14px', fontWeight: '500' }}>Umbral Mínimo</span>
-              <span style={{ color: '#111827', fontSize: '15px', fontWeight: '600' }}>
+              <span style={{ color: '#9ca3af', fontSize: '14px', fontWeight: '500' }}>Umbral Mínimo</span>
+              <span style={{ color: '#ffffff', fontSize: '15px', fontWeight: '600' }}>
                 {parsed.threshold}
               </span>
             </div>
@@ -201,15 +204,16 @@ const MessageItem: React.FC<MessageItemProps> = ({ message }) => {
               <div style={{
                 marginTop: '8px',
                 padding: '12px',
-                background: '#fef2f2',
-                border: '1px solid #fecaca',
+                background: 'rgba(239, 68, 68, 0.15)',
+                border: '1px solid rgba(239, 68, 68, 0.3)',
                 borderRadius: '8px',
-                color: '#991b1b',
+                color: '#ef4444',
                 fontSize: '13px',
                 fontWeight: '500',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '8px'
+                gap: '8px',
+                backdropFilter: 'blur(10px)'
               }}>
                 <span>🚨</span>
                 Stock bajo - Se requiere reabastecimiento

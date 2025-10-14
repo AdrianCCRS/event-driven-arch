@@ -89,51 +89,49 @@ const Dashboard: React.FC = () => {
 
   return (
     <div style={{ 
-      padding: '30px',
+      padding: '20px',
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+      background: '#0a0a0a'
     }}>
-      {/* Header moderno */}
+      {/* Header */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '30px',
-        padding: '24px 30px',
-        background: '#ffffff',
-        borderRadius: '20px',
-        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
-        border: '1px solid #f3f4f6'
+        marginBottom: '24px',
+        padding: '20px 24px',
+        background: 'rgba(26, 26, 26, 0.6)',
+        backdropFilter: 'blur(20px)',
+        borderRadius: '16px',
+        boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
+        border: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           <div style={{
-            width: '60px',
-            height: '60px',
-            borderRadius: '16px',
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            width: '56px',
+            height: '56px',
+            borderRadius: '12px',
+            background: '#3b82f6',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontSize: '30px',
-            boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)'
+            fontSize: '28px',
+            boxShadow: '0 0 20px rgba(59, 130, 246, 0.4)'
           }}>
             🐰
           </div>
           <div>
             <h1 style={{ 
               margin: 0,
-              fontSize: '28px',
+              fontSize: '26px',
               fontWeight: '700',
-              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              backgroundClip: 'text'
+              color: '#ffffff'
             }}>
               Monitor de Mensajes RabbitMQ
             </h1>
             <p style={{
               margin: '4px 0 0 0',
-              color: '#6b7280',
+              color: '#9ca3af',
               fontSize: '14px',
               fontWeight: '500'
             }}>
@@ -142,28 +140,27 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
         <div style={{
-          padding: '12px 20px',
-          borderRadius: '12px',
-          backgroundColor: connectionStatus === 'connected' ? '#d1fae5' : 
-                          connectionStatus === 'connecting' ? '#fef3c7' : '#fee2e2',
-          border: `2px solid ${connectionStatus === 'connected' ? '#10b981' : 
-                          connectionStatus === 'connecting' ? '#f59e0b' : '#ef4444'}`,
+          padding: '10px 18px',
+          borderRadius: '10px',
+          backgroundColor: connectionStatus === 'connected' ? 'rgba(34, 197, 94, 0.15)' : 
+                          connectionStatus === 'connecting' ? 'rgba(234, 179, 8, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+          border: `1px solid ${connectionStatus === 'connected' ? '#22c55e' : 
+                          connectionStatus === 'connecting' ? '#eab308' : '#ef4444'}`,
           display: 'flex',
           alignItems: 'center',
-          gap: '10px',
-          fontWeight: '700',
-          fontSize: '14px',
-          color: connectionStatus === 'connected' ? '#065f46' : 
-                 connectionStatus === 'connecting' ? '#92400e' : '#991b1b',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
+          gap: '8px',
+          fontWeight: '600',
+          fontSize: '13px',
+          color: connectionStatus === 'connected' ? '#22c55e' : 
+                 connectionStatus === 'connecting' ? '#eab308' : '#ef4444'
         }}>
           <span style={{
             display: 'inline-block',
-            width: '10px',
-            height: '10px',
+            width: '8px',
+            height: '8px',
             borderRadius: '50%',
-            backgroundColor: connectionStatus === 'connected' ? '#10b981' : 
-                            connectionStatus === 'connecting' ? '#f59e0b' : '#ef4444',
+            backgroundColor: connectionStatus === 'connected' ? '#22c55e' : 
+                            connectionStatus === 'connecting' ? '#eab308' : '#ef4444',
             animation: connectionStatus === 'connecting' ? 'pulse 2s infinite' : 'none'
           }}></span>
           {connectionStatus === 'connected' ? 'CONECTADO' :
@@ -171,79 +168,50 @@ const Dashboard: React.FC = () => {
         </div>
       </div>
       
-      {/* Notificaciones modernas */}
+      {/* Notificaciones */}
       {notification && (
         <div style={{
-          padding: '16px 24px',
-          marginBottom: '24px',
-          borderRadius: '16px',
-          backgroundColor: notification.type === 'success' ? '#d1fae5' : '#fee2e2',
-          color: notification.type === 'success' ? '#065f46' : '#991b1b',
-          border: `2px solid ${notification.type === 'success' ? '#34d399' : '#f87171'}`,
-          boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)',
+          padding: '14px 20px',
+          marginBottom: '20px',
+          borderRadius: '12px',
+          backgroundColor: notification.type === 'success' ? 'rgba(34, 197, 94, 0.15)' : 'rgba(239, 68, 68, 0.15)',
+          color: notification.type === 'success' ? '#22c55e' : '#ef4444',
+          border: `1px solid ${notification.type === 'success' ? '#22c55e' : '#ef4444'}`,
+          backdropFilter: 'blur(20px)',
+          boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
           display: 'flex',
           alignItems: 'center',
           gap: '12px',
           fontWeight: '600',
-          fontSize: '15px',
+          fontSize: '14px',
           animation: 'slideIn 0.3s ease-out'
         }}>
-          <span style={{ fontSize: '24px' }}>
+          <span style={{ fontSize: '20px' }}>
             {notification.type === 'success' ? '✅' : '❌'}
           </span>
           {notification.message}
         </div>
       )}
       
-      {/* Formulario de mensaje */}
-      <MessageForm onSendMessage={handleSendMessage} loading={sendingMessage} />
-      
-      {/* Stats card */}
-      <div style={{ 
-        marginBottom: '24px',
-        padding: '20px 24px',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        borderRadius: '16px',
-        boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '16px'
+      {/* Bento Grid Layout */}
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(12, 1fr)',
+        gap: '20px',
+        gridAutoRows: 'minmax(100px, auto)'
       }}>
-        <div style={{
-          width: '48px',
-          height: '48px',
-          borderRadius: '12px',
-          background: 'rgba(255, 255, 255, 0.2)',
-          backdropFilter: 'blur(10px)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '24px'
-        }}>
-          💬
+        
+        {/* Message Form - Left side, spans 4 columns */}
+        <div style={{ gridColumn: 'span 4', gridRow: 'span 1' }}>
+          <MessageForm onSendMessage={handleSendMessage} loading={sendingMessage} />
         </div>
-        <div>
-          <div style={{
-            color: 'rgba(255, 255, 255, 0.9)',
-            fontSize: '14px',
-            fontWeight: '500',
-            marginBottom: '4px'
-          }}>
-            Total de Mensajes
-          </div>
-          <div style={{
-            color: '#ffffff',
-            fontSize: '32px',
-            fontWeight: '700',
-            lineHeight: '1'
-          }}>
-            {messages.length}
-          </div>
+        
+        {/* Message List - Center/Right, spans 8 columns */}
+        <div style={{ gridColumn: 'span 8', gridRow: 'span 1', position: 'relative' }}>
+          <MessageList messages={messages} />
+          
         </div>
       </div>
-      
-      {/* Lista de mensajes */}
-      <MessageList messages={messages} />
 
       {/* CSS para animaciones */}
       <style>{`

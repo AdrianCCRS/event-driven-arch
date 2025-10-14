@@ -24,28 +24,30 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
     timestamp: ''
   });
 
-  const handleOrderSubmit = (e: React.FormEvent) => {
+  const handleOrderSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (orderForm.order_id && orderForm.item && orderForm.user) {
       const orderMessage = {
         ...orderForm,
         timestamp: new Date().toISOString()
       };
-      onSendMessage('orders', orderMessage);
+      await onSendMessage('orders', orderMessage);
       setOrderForm({ order_id: '', item: '', quantity: 1, user: '' });
+      // Reload the page after sending
+      setTimeout(() => window.location.reload(), 500);
     } else {
       alert('Por favor completa todos los campos requeridos');
     }
   };
 
-  const handleAlertSubmit = (e: React.FormEvent) => {
+  const handleAlertSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (alertForm.item) {
       const alertMessage = {
         ...alertForm,
         timestamp: new Date().toISOString()
       };
-      onSendMessage('alerts', alertMessage);
+      await onSendMessage('alerts', alertMessage);
       setAlertForm({ 
         type: 'inventory_alert', 
         item: '', 
@@ -53,6 +55,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
         threshold: 5, 
         timestamp: '' 
       });
+      // Reload the page after sending
+      setTimeout(() => window.location.reload(), 500);
     } else {
       alert('Por favor completa todos los campos requeridos');
     }
@@ -62,19 +66,22 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
     width: '100%',
     padding: '14px 16px',
     fontSize: '15px',
-    border: '2px solid #e5e7eb',
+    border: '1px solid rgba(255, 255, 255, 0.1)',
     borderRadius: '12px',
     outline: 'none',
     transition: 'all 0.2s',
     fontFamily: 'inherit',
-    backgroundColor: '#ffffff'
+    backgroundColor: 'rgba(26, 26, 26, 0.6)',
+    color: '#ffffff',
+    backdropFilter: 'blur(20px)',
+    boxSizing: 'border-box' as const
   };
 
   const labelStyle = {
     display: 'block',
     marginBottom: '8px',
     fontWeight: '600',
-    color: '#374151',
+    color: '#e5e5e5',
     fontSize: '14px'
   };
 
@@ -88,99 +95,102 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
     cursor: loading ? 'not-allowed' : 'pointer',
     transition: 'all 0.3s',
     fontFamily: 'inherit',
-    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-    transform: loading ? 'scale(0.98)' : 'scale(1)'
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.4)',
+    transform: loading ? 'scale(0.98)' : 'scale(1)',
+    boxSizing: 'border-box' as const
   };
 
   return (
     <div style={{ 
-      background: '#ffffff',
-      borderRadius: '20px',
+      background: 'rgba(26, 26, 26, 0.6)',
+      backdropFilter: 'blur(20px)',
+      borderRadius: '16px',
       padding: '0',
-      marginBottom: '30px',
-      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+      marginBottom: '0',
+      boxShadow: '0 4px 16px rgba(0, 0, 0, 0.4)',
       overflow: 'hidden',
-      border: '1px solid #f3f4f6'
+      border: '1px solid rgba(255, 255, 255, 0.1)',
+      height: 'fit-content'
     }}>
       <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        padding: '24px 28px',
+        background: '#3b82f6',
+        padding: '20px 24px',
         color: '#ffffff'
       }}>
         <h2 style={{ 
           margin: 0,
-          fontSize: '24px',
+          fontSize: '20px',
           fontWeight: '700',
           display: 'flex',
           alignItems: 'center',
-          gap: '12px'
+          gap: '10px'
         }}>
-          <span style={{ fontSize: '28px' }}>📤</span>
+          <span style={{ fontSize: '24px' }}>📤</span>
           Enviar Nuevo Mensaje
         </h2>
         <p style={{
-          margin: '8px 0 0 0',
-          opacity: 0.95,
-          fontSize: '14px',
+          margin: '6px 0 0 0',
+          opacity: 0.9,
+          fontSize: '13px',
           fontWeight: '400'
         }}>
-          Selecciona el tipo de mensaje y completa la información
+          Selecciona el tipo de mensaje
         </p>
       </div>
 
       <div style={{ 
         display: 'flex',
         padding: '0',
-        background: '#f9fafb',
-        borderBottom: '1px solid #e5e7eb'
+        background: 'rgba(0, 0, 0, 0.2)',
+        borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
       }}>
         <button
           onClick={() => setActiveTab('orders')}
           style={{
             flex: 1,
-            padding: '18px',
-            backgroundColor: activeTab === 'orders' ? '#ffffff' : 'transparent',
-            color: activeTab === 'orders' ? '#667eea' : '#6b7280',
+            padding: '16px',
+            backgroundColor: activeTab === 'orders' ? 'rgba(59, 130, 246, 0.2)' : 'transparent',
+            color: activeTab === 'orders' ? '#3b82f6' : '#9ca3af',
             border: 'none',
             cursor: 'pointer',
             fontWeight: '700',
-            fontSize: '15px',
+            fontSize: '14px',
             transition: 'all 0.3s',
-            borderBottom: activeTab === 'orders' ? '3px solid #667eea' : '3px solid transparent',
+            borderBottom: activeTab === 'orders' ? '2px solid #3b82f6' : '2px solid transparent',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px'
           }}
         >
-          <span style={{ fontSize: '20px' }}>🛒</span>
+          <span style={{ fontSize: '18px' }}>🛒</span>
           Pedidos
         </button>
         <button
           onClick={() => setActiveTab('alerts')}
           style={{
             flex: 1,
-            padding: '18px',
-            backgroundColor: activeTab === 'alerts' ? '#ffffff' : 'transparent',
-            color: activeTab === 'alerts' ? '#f5576c' : '#6b7280',
+            padding: '16px',
+            backgroundColor: activeTab === 'alerts' ? 'rgba(234, 179, 8, 0.2)' : 'transparent',
+            color: activeTab === 'alerts' ? '#eab308' : '#9ca3af',
             border: 'none',
             cursor: 'pointer',
             fontWeight: '700',
-            fontSize: '15px',
+            fontSize: '14px',
             transition: 'all 0.3s',
-            borderBottom: activeTab === 'alerts' ? '3px solid #f5576c' : '3px solid transparent',
+            borderBottom: activeTab === 'alerts' ? '2px solid #eab308' : '2px solid transparent',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             gap: '8px'
           }}
         >
-          <span style={{ fontSize: '20px' }}>⚠️</span>
+          <span style={{ fontSize: '18px' }}>⚠️</span>
           Alertas
         </button>
       </div>
 
-      <div style={{ padding: '28px' }}>
+      <div style={{ padding: '24px' }}>
         {activeTab === 'orders' ? (
           <form onSubmit={handleOrderSubmit}>
             <div style={{ marginBottom: '20px' }}>
@@ -191,6 +201,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
                 type="text"
                 value={orderForm.order_id}
                 onChange={(e) => setOrderForm({ ...orderForm, order_id: e.target.value })}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
                 placeholder="Ej: ORD-001"
                 style={inputStyle}
                 required
@@ -205,6 +217,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
                 type="text"
                 value={orderForm.item}
                 onChange={(e) => setOrderForm({ ...orderForm, item: e.target.value })}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
                 placeholder="Ej: Café Latte"
                 style={inputStyle}
                 required
@@ -220,6 +234,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
                 min="1"
                 value={orderForm.quantity}
                 onChange={(e) => setOrderForm({ ...orderForm, quantity: parseInt(e.target.value) || 1 })}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
                 style={inputStyle}
                 required
               />
@@ -233,6 +249,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
                 type="text"
                 value={orderForm.user}
                 onChange={(e) => setOrderForm({ ...orderForm, user: e.target.value })}
+                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
                 placeholder="Ej: María García"
                 style={inputStyle}
                 required
@@ -244,11 +262,13 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
               disabled={loading}
               style={{
                 ...buttonStyle,
-                background: loading ? '#9ca3af' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                background: loading ? '#6b7280' : '#3b82f6',
                 color: '#ffffff'
               }}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.background = '#2563eb')}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.background = '#3b82f6')}
             >
-              {loading ? 'Enviando...' : '🚀 Enviar Pedido'}
+              {loading ? 'Enviando...' : 'Enviar Pedido'}
             </button>
           </form>
         ) : (
@@ -261,6 +281,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
                 type="text"
                 value={alertForm.item}
                 onChange={(e) => setAlertForm({ ...alertForm, item: e.target.value })}
+                onFocus={(e) => e.target.style.borderColor = '#eab308'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
                 placeholder="Ej: Leche"
                 style={inputStyle}
                 required
@@ -276,6 +298,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
                 min="0"
                 value={alertForm.stock_level}
                 onChange={(e) => setAlertForm({ ...alertForm, stock_level: parseInt(e.target.value) || 0 })}
+                onFocus={(e) => e.target.style.borderColor = '#eab308'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
                 style={inputStyle}
                 required
               />
@@ -290,6 +314,8 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
                 min="0"
                 value={alertForm.threshold}
                 onChange={(e) => setAlertForm({ ...alertForm, threshold: parseInt(e.target.value) || 5 })}
+                onFocus={(e) => e.target.style.borderColor = '#eab308'}
+                onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'}
                 style={inputStyle}
               />
             </div>
@@ -299,11 +325,13 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
               disabled={loading}
               style={{
                 ...buttonStyle,
-                background: loading ? '#9ca3af' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                background: loading ? '#6b7280' : '#eab308',
                 color: '#ffffff'
               }}
+              onMouseEnter={(e) => !loading && (e.currentTarget.style.background = '#ca8a04')}
+              onMouseLeave={(e) => !loading && (e.currentTarget.style.background = '#eab308')}
             >
-              {loading ? 'Enviando...' : '⚡ Enviar Alerta'}
+              {loading ? 'Enviando...' : 'Enviar Alerta'}
             </button>
           </form>
         )}
