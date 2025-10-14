@@ -9,7 +9,6 @@ interface MessageFormProps {
 const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = false }) => {
   const [activeTab, setActiveTab] = useState<'orders' | 'alerts'>('orders');
   
-  // Order form state
   const [orderForm, setOrderForm] = useState<OrderMessage>({
     order_id: '',
     item: '',
@@ -17,7 +16,6 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
     user: ''
   });
 
-  // Alert form state
   const [alertForm, setAlertForm] = useState<AlertMessage>({
     type: 'inventory_alert',
     item: '',
@@ -36,7 +34,7 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
       onSendMessage('orders', orderMessage);
       setOrderForm({ order_id: '', item: '', quantity: 1, user: '' });
     } else {
-      alert('Please fill all required fields');
+      alert('Por favor completa todos los campos requeridos');
     }
   };
 
@@ -56,241 +54,260 @@ const MessageForm: React.FC<MessageFormProps> = ({ onSendMessage, loading = fals
         timestamp: '' 
       });
     } else {
-      alert('Please fill all required fields');
+      alert('Por favor completa todos los campos requeridos');
     }
   };
 
-  const tabStyle = (isActive: boolean) => ({
-    padding: '10px 20px',
-    backgroundColor: isActive ? '#007bff' : '#e9ecef',
-    color: isActive ? 'white' : '#495057',
-    border: 'none',
-    cursor: 'pointer',
-    marginRight: '5px',
-    borderRadius: '4px 4px 0 0',
-    fontWeight: 'bold'
-  });
-
   const inputStyle = {
     width: '100%',
-    padding: '8px',
-    marginBottom: '15px',
-    borderRadius: '4px',
-    border: '1px solid #ced4da',
-    fontSize: '14px'
+    padding: '14px 16px',
+    fontSize: '15px',
+    border: '2px solid #e5e7eb',
+    borderRadius: '12px',
+    outline: 'none',
+    transition: 'all 0.2s',
+    fontFamily: 'inherit',
+    backgroundColor: '#ffffff'
   };
 
   const labelStyle = {
     display: 'block',
-    marginBottom: '5px',
-    fontWeight: 'bold',
-    color: '#495057'
+    marginBottom: '8px',
+    fontWeight: '600',
+    color: '#374151',
+    fontSize: '14px'
+  };
+
+  const buttonStyle = {
+    width: '100%',
+    padding: '16px',
+    fontSize: '16px',
+    fontWeight: '700',
+    border: 'none',
+    borderRadius: '12px',
+    cursor: loading ? 'not-allowed' : 'pointer',
+    transition: 'all 0.3s',
+    fontFamily: 'inherit',
+    boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+    transform: loading ? 'scale(0.98)' : 'scale(1)'
   };
 
   return (
     <div style={{ 
-      backgroundColor: '#f8f9fa', 
-      padding: '20px', 
-      borderRadius: '8px', 
-      marginBottom: '20px',
-      border: '1px solid #dee2e6'
+      background: '#ffffff',
+      borderRadius: '20px',
+      padding: '0',
+      marginBottom: '30px',
+      boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+      overflow: 'hidden',
+      border: '1px solid #f3f4f6'
     }}>
-      <h2 style={{ marginTop: 0, color: '#495057' }}>Send New Message</h2>
-      
-      {/* Tab buttons */}
-      <div style={{ marginBottom: '20px', borderBottom: '1px solid #dee2e6' }}>
-        <button 
-          style={tabStyle(activeTab === 'orders')}
+      <div style={{
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        padding: '24px 28px',
+        color: '#ffffff'
+      }}>
+        <h2 style={{ 
+          margin: 0,
+          fontSize: '24px',
+          fontWeight: '700',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px'
+        }}>
+          <span style={{ fontSize: '28px' }}>📤</span>
+          Enviar Nuevo Mensaje
+        </h2>
+        <p style={{
+          margin: '8px 0 0 0',
+          opacity: 0.95,
+          fontSize: '14px',
+          fontWeight: '400'
+        }}>
+          Selecciona el tipo de mensaje y completa la información
+        </p>
+      </div>
+
+      <div style={{ 
+        display: 'flex',
+        padding: '0',
+        background: '#f9fafb',
+        borderBottom: '1px solid #e5e7eb'
+      }}>
+        <button
           onClick={() => setActiveTab('orders')}
-          disabled={loading}
+          style={{
+            flex: 1,
+            padding: '18px',
+            backgroundColor: activeTab === 'orders' ? '#ffffff' : 'transparent',
+            color: activeTab === 'orders' ? '#667eea' : '#6b7280',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: '700',
+            fontSize: '15px',
+            transition: 'all 0.3s',
+            borderBottom: activeTab === 'orders' ? '3px solid #667eea' : '3px solid transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}
         >
-          📦 Create Order
+          <span style={{ fontSize: '20px' }}>🛒</span>
+          Pedidos
         </button>
-        <button 
-          style={tabStyle(activeTab === 'alerts')}
+        <button
           onClick={() => setActiveTab('alerts')}
-          disabled={loading}
+          style={{
+            flex: 1,
+            padding: '18px',
+            backgroundColor: activeTab === 'alerts' ? '#ffffff' : 'transparent',
+            color: activeTab === 'alerts' ? '#f5576c' : '#6b7280',
+            border: 'none',
+            cursor: 'pointer',
+            fontWeight: '700',
+            fontSize: '15px',
+            transition: 'all 0.3s',
+            borderBottom: activeTab === 'alerts' ? '3px solid #f5576c' : '3px solid transparent',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8px'
+          }}
         >
-          ⚠️ Send Alert
+          <span style={{ fontSize: '20px' }}>⚠️</span>
+          Alertas
         </button>
       </div>
 
-      {/* Orders Form */}
-      {activeTab === 'orders' && (
-        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '0 8px 8px 8px' }}>
+      <div style={{ padding: '28px' }}>
+        {activeTab === 'orders' ? (
           <form onSubmit={handleOrderSubmit}>
-            <h3 style={{ marginTop: 0, color: '#007bff' }}>New Coffee Order</h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-              <div>
-                <label style={labelStyle}>Order ID *:</label>
-                <input
-                  type="text"
-                  value={orderForm.order_id}
-                  onChange={(e) => setOrderForm({...orderForm, order_id: e.target.value})}
-                  placeholder="ORD-104"
-                  style={inputStyle}
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Customer *:</label>
-                <input
-                  type="text"
-                  value={orderForm.user}
-                  onChange={(e) => setOrderForm({...orderForm, user: e.target.value})}
-                  placeholder="Customer name"
-                  style={inputStyle}
-                  required
-                  disabled={loading}
-                />
-              </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>
+                <span style={{ color: '#ef4444' }}>*</span> ID del Pedido
+              </label>
+              <input
+                type="text"
+                value={orderForm.order_id}
+                onChange={(e) => setOrderForm({ ...orderForm, order_id: e.target.value })}
+                placeholder="Ej: ORD-001"
+                style={inputStyle}
+                required
+              />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '15px' }}>
-              <div>
-                <label style={labelStyle}>Coffee Item *:</label>
-                <select
-                  value={orderForm.item}
-                  onChange={(e) => setOrderForm({...orderForm, item: e.target.value})}
-                  style={inputStyle}
-                  required
-                  disabled={loading}
-                >
-                  <option value="">Select a coffee</option>
-                  <option value="Capuchino">☕ Capuchino</option>
-                  <option value="Latte">🥛 Latte</option>
-                  <option value="Espresso doble">💪 Espresso doble</option>
-                  <option value="Americano">🇺🇸 Americano</option>
-                  <option value="Mocha">🍫 Mocha</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Quantity *:</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="10"
-                  value={orderForm.quantity}
-                  onChange={(e) => setOrderForm({...orderForm, quantity: parseInt(e.target.value) || 1})}
-                  style={inputStyle}
-                  required
-                  disabled={loading}
-                />
-              </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>
+                <span style={{ color: '#ef4444' }}>*</span> Producto
+              </label>
+              <input
+                type="text"
+                value={orderForm.item}
+                onChange={(e) => setOrderForm({ ...orderForm, item: e.target.value })}
+                placeholder="Ej: Café Latte"
+                style={inputStyle}
+                required
+              />
             </div>
 
-            <button 
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>
+                <span style={{ color: '#ef4444' }}>*</span> Cantidad
+              </label>
+              <input
+                type="number"
+                min="1"
+                value={orderForm.quantity}
+                onChange={(e) => setOrderForm({ ...orderForm, quantity: parseInt(e.target.value) || 1 })}
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            <div style={{ marginBottom: '24px' }}>
+              <label style={labelStyle}>
+                <span style={{ color: '#ef4444' }}>*</span> Cliente
+              </label>
+              <input
+                type="text"
+                value={orderForm.user}
+                onChange={(e) => setOrderForm({ ...orderForm, user: e.target.value })}
+                placeholder="Ej: María García"
+                style={inputStyle}
+                required
+              />
+            </div>
+
+            <button
               type="submit"
               disabled={loading}
-              style={{ 
-                backgroundColor: loading ? '#6c757d' : '#28a745', 
-                color: 'white', 
-                padding: '12px 24px', 
-                border: 'none', 
-                borderRadius: '4px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '16px',
-                fontWeight: 'bold'
+              style={{
+                ...buttonStyle,
+                background: loading ? '#9ca3af' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                color: '#ffffff'
               }}
             >
-              {loading ? 'Sending...' : '📦 Send Order'}
+              {loading ? 'Enviando...' : '🚀 Enviar Pedido'}
             </button>
           </form>
-        </div>
-      )}
-
-      {/* Alerts Form */}
-      {activeTab === 'alerts' && (
-        <div style={{ backgroundColor: 'white', padding: '20px', borderRadius: '0 8px 8px 8px' }}>
+        ) : (
           <form onSubmit={handleAlertSubmit}>
-            <h3 style={{ marginTop: 0, color: '#dc3545' }}>New Inventory Alert</h3>
-            
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-              <div>
-                <label style={labelStyle}>Alert Type:</label>
-                <select
-                  value={alertForm.type}
-                  onChange={(e) => setAlertForm({...alertForm, type: e.target.value})}
-                  style={inputStyle}
-                  disabled={loading}
-                >
-                  <option value="inventory_alert">📊 Inventory Alert</option>
-                  <option value="low_stock">📉 Low Stock</option>
-                  <option value="out_of_stock">❌ Out of Stock</option>
-                  <option value="critical_stock">🚨 Critical Stock</option>
-                </select>
-              </div>
-
-              <div>
-                <label style={labelStyle}>Item *:</label>
-                <select
-                  value={alertForm.item}
-                  onChange={(e) => setAlertForm({...alertForm, item: e.target.value})}
-                  style={inputStyle}
-                  required
-                  disabled={loading}
-                >
-                  <option value="">Select an item</option>
-                  <option value="Leche">🥛 Leche</option>
-                  <option value="Café molido">☕ Café molido</option>
-                  <option value="Azúcar">🍯 Azúcar</option>
-                  <option value="Tazas">☕ Tazas</option>
-                </select>
-              </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>
+                <span style={{ color: '#ef4444' }}>*</span> Producto
+              </label>
+              <input
+                type="text"
+                value={alertForm.item}
+                onChange={(e) => setAlertForm({ ...alertForm, item: e.target.value })}
+                placeholder="Ej: Leche"
+                style={inputStyle}
+                required
+              />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-              <div>
-                <label style={labelStyle}>Current Stock Level *:</label>
-                <input
-                  type="number"
-                  min="0"
-                  max="1000"
-                  value={alertForm.stock_level}
-                  onChange={(e) => setAlertForm({...alertForm, stock_level: parseInt(e.target.value) || 0})}
-                  style={inputStyle}
-                  required
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <label style={labelStyle}>Alert Threshold:</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={alertForm.threshold}
-                  onChange={(e) => setAlertForm({...alertForm, threshold: parseInt(e.target.value) || 5})}
-                  style={inputStyle}
-                  disabled={loading}
-                />
-              </div>
+            <div style={{ marginBottom: '20px' }}>
+              <label style={labelStyle}>
+                <span style={{ color: '#ef4444' }}>*</span> Nivel de Stock
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={alertForm.stock_level}
+                onChange={(e) => setAlertForm({ ...alertForm, stock_level: parseInt(e.target.value) || 0 })}
+                style={inputStyle}
+                required
+              />
             </div>
 
-            <button 
+            <div style={{ marginBottom: '24px' }}>
+              <label style={labelStyle}>
+                Umbral Mínimo
+              </label>
+              <input
+                type="number"
+                min="0"
+                value={alertForm.threshold}
+                onChange={(e) => setAlertForm({ ...alertForm, threshold: parseInt(e.target.value) || 5 })}
+                style={inputStyle}
+              />
+            </div>
+
+            <button
               type="submit"
               disabled={loading}
-              style={{ 
-                backgroundColor: loading ? '#6c757d' : '#dc3545', 
-                color: 'white', 
-                padding: '12px 24px', 
-                border: 'none', 
-                borderRadius: '4px',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                fontSize: '16px',
-                fontWeight: 'bold'
+              style={{
+                ...buttonStyle,
+                background: loading ? '#9ca3af' : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+                color: '#ffffff'
               }}
             >
-              {loading ? 'Sending...' : '⚠️ Send Alert'}
+              {loading ? 'Enviando...' : '⚡ Enviar Alerta'}
             </button>
           </form>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 };

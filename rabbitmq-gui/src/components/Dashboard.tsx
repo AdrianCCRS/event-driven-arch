@@ -88,51 +88,191 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: '20px' }}>
+    <div style={{ 
+      padding: '30px',
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%)'
+    }}>
+      {/* Header moderno */}
       <div style={{ 
         display: 'flex', 
         justifyContent: 'space-between', 
         alignItems: 'center',
-        marginBottom: '20px',
-        padding: '10px',
-        backgroundColor: '#f5f5f5',
-        borderRadius: '5px'
+        marginBottom: '30px',
+        padding: '24px 30px',
+        background: '#ffffff',
+        borderRadius: '20px',
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+        border: '1px solid #f3f4f6'
       }}>
-        <h1 style={{ margin: 0 }}>RabbitMQ Messages</h1>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div style={{
+            width: '60px',
+            height: '60px',
+            borderRadius: '16px',
+            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '30px',
+            boxShadow: '0 8px 20px rgba(102, 126, 234, 0.3)'
+          }}>
+            🐰
+          </div>
+          <div>
+            <h1 style={{ 
+              margin: 0,
+              fontSize: '28px',
+              fontWeight: '700',
+              background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              Monitor de Mensajes RabbitMQ
+            </h1>
+            <p style={{
+              margin: '4px 0 0 0',
+              color: '#6b7280',
+              fontSize: '14px',
+              fontWeight: '500'
+            }}>
+              Sistema de mensajería en tiempo real
+            </p>
+          </div>
+        </div>
         <div style={{
-          padding: '5px 10px',
-          borderRadius: '3px',
-          backgroundColor: connectionStatus === 'connected' ? '#4caf50' : 
-                          connectionStatus === 'connecting' ? '#ff9800' : '#f44336',
-          color: 'white',
-          fontSize: '12px'
+          padding: '12px 20px',
+          borderRadius: '12px',
+          backgroundColor: connectionStatus === 'connected' ? '#d1fae5' : 
+                          connectionStatus === 'connecting' ? '#fef3c7' : '#fee2e2',
+          border: `2px solid ${connectionStatus === 'connected' ? '#10b981' : 
+                          connectionStatus === 'connecting' ? '#f59e0b' : '#ef4444'}`,
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontWeight: '700',
+          fontSize: '14px',
+          color: connectionStatus === 'connected' ? '#065f46' : 
+                 connectionStatus === 'connecting' ? '#92400e' : '#991b1b',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.08)'
         }}>
-          {connectionStatus.toUpperCase()}
+          <span style={{
+            display: 'inline-block',
+            width: '10px',
+            height: '10px',
+            borderRadius: '50%',
+            backgroundColor: connectionStatus === 'connected' ? '#10b981' : 
+                            connectionStatus === 'connecting' ? '#f59e0b' : '#ef4444',
+            animation: connectionStatus === 'connecting' ? 'pulse 2s infinite' : 'none'
+          }}></span>
+          {connectionStatus === 'connected' ? 'CONECTADO' :
+           connectionStatus === 'connecting' ? 'CONECTANDO' : 'DESCONECTADO'}
         </div>
       </div>
       
-      {/* Notification */}
+      {/* Notificaciones modernas */}
       {notification && (
         <div style={{
-          padding: '10px',
-          marginBottom: '20px',
-          borderRadius: '4px',
-          backgroundColor: notification.type === 'success' ? '#d4edda' : '#f8d7da',
-          color: notification.type === 'success' ? '#155724' : '#721c24',
-          border: `1px solid ${notification.type === 'success' ? '#c3e6cb' : '#f5c6cb'}`
+          padding: '16px 24px',
+          marginBottom: '24px',
+          borderRadius: '16px',
+          backgroundColor: notification.type === 'success' ? '#d1fae5' : '#fee2e2',
+          color: notification.type === 'success' ? '#065f46' : '#991b1b',
+          border: `2px solid ${notification.type === 'success' ? '#34d399' : '#f87171'}`,
+          boxShadow: '0 8px 20px rgba(0, 0, 0, 0.08)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          fontWeight: '600',
+          fontSize: '15px',
+          animation: 'slideIn 0.3s ease-out'
         }}>
+          <span style={{ fontSize: '24px' }}>
+            {notification.type === 'success' ? '✅' : '❌'}
+          </span>
           {notification.message}
         </div>
       )}
       
-      {/* Message Form */}
+      {/* Formulario de mensaje */}
       <MessageForm onSendMessage={handleSendMessage} loading={sendingMessage} />
       
-      <div style={{ marginBottom: '10px' }}>
-        <strong>Total Messages: {messages.length}</strong>
+      {/* Stats card */}
+      <div style={{ 
+        marginBottom: '24px',
+        padding: '20px 24px',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        borderRadius: '16px',
+        boxShadow: '0 10px 30px rgba(102, 126, 234, 0.3)',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '16px'
+      }}>
+        <div style={{
+          width: '48px',
+          height: '48px',
+          borderRadius: '12px',
+          background: 'rgba(255, 255, 255, 0.2)',
+          backdropFilter: 'blur(10px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '24px'
+        }}>
+          💬
+        </div>
+        <div>
+          <div style={{
+            color: 'rgba(255, 255, 255, 0.9)',
+            fontSize: '14px',
+            fontWeight: '500',
+            marginBottom: '4px'
+          }}>
+            Total de Mensajes
+          </div>
+          <div style={{
+            color: '#ffffff',
+            fontSize: '32px',
+            fontWeight: '700',
+            lineHeight: '1'
+          }}>
+            {messages.length}
+          </div>
+        </div>
       </div>
       
+      {/* Lista de mensajes */}
       <MessageList messages={messages} />
+
+      {/* CSS para animaciones */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+        
+        @keyframes slideIn {
+          from {
+            transform: translateY(-20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+        
+        @keyframes spin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 };
