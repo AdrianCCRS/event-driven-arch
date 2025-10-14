@@ -18,37 +18,45 @@ Este proyecto implementa un sistema de mensajería distribuido utilizando Rabbit
 El sistema sigue una arquitectura de microservicios con los siguientes componentes:
 
 ```
-┌─────────────────┐
-│   RabbitMQ      │ ◄──────────────────┐
-│   (Broker)      │                    │
-└────────┬────────┘                    │
-         │                             │
-    ┌────┴─────────────────────┐      │
-    │                          │      │
-    ▼                          ▼      │
-┌──────────┐              ┌──────────┐│
-│ orders   │              │ alerts   ││
-│  queue   │              │  queue   ││
-└────┬─────┘              └────┬─────┘│
-     │                         │      │
-     ▼                         ▼      │
-┌──────────┐              ┌──────────┐│
-│ Kitchen  │              │Notification│
-│ Service  │              │  Service  ││
-│   (JS)   │              │    (JS)   ││
-└──────────┘              └───────────┘│
-                                       │
-┌──────────────────────────────────────┘
-│ Productores Python envían aquí
+                    ┌─────────────────┐
+                    │   RabbitMQ      │ ◄────────────────────────┐
+                    │   (Broker)      │                          │
+                    └────────┬────────┘                          │
+                             │                                   │
+        ┌────────────────────┼────────────────────┐             │
+        │                    │                    │             │
+        ▼                    ▼                    ▼             │
+   ┌──────────┐         ┌──────────┐        ┌──────────┐       │
+   │ orders   │         │ alerts   │        │ billing  │       │
+   │  queue   │         │  queue   │        │  queue   │       │
+   └────┬─────┘         └────┬─────┘        └────┬─────┘       │
+        │                    │                    │             │
+        ▼                    ▼                    ▼             │
+   ┌──────────┐         ┌──────────┐        ┌──────────┐       │
+   │ Kitchen  │         │Notification       │ Billing  │       │
+   │ Service  │         │  Service  │       │ Service  │       │
+   │   (JS)   │         │    (JS)   │       │   (JS)   │       │
+   └──────────┘         └───────────┘       └──────────┘       │
+                                                                │
+   ┌──────────┐                                                 │
+   │ delivery │                                                 │
+   │  queue   │                                                 │
+   └────┬─────┘                                                 │
+        │                                                       │
+        ▼                                                       │
+   ┌──────────┐                                                 │
+   │ Delivery │                                                 │
+   │ Service  │                                                 │
+   │   (JS)   │                                                 │
+   └──────────┘                                                 │
+                                                                │
+┌───────────────────────────────────────────────────────────────┘
+│ Productores Python envían mensajes
 │
-├─► orders_monitor ──► API Service
-└─► alerts_monitor ──► API Service
-                         │
-                         ▼
-                    ┌──────────┐
-                    │WebSocket │
-                    │   GUI    │
-                    └──────────┘
+├─► orders_monitor ──┐
+├─► alerts_monitor ──┤
+├─► billing_monitor ─┼──► API Service ──► WebSocket ──► GUI
+└─► delivery_monitor ┘
 ```
 
 ### Principios de Diseño
@@ -60,8 +68,8 @@ El sistema sigue una arquitectura de microservicios con los siguientes component
 
 2. **Patrón de Colas Duales**:
    - Cada tipo de mensaje tiene 2 colas:
-     - Cola principal (`orders`, `alerts`) → Para procesamiento
-     - Cola de monitoreo (`orders_monitor`, `alerts_monitor`) → Para la GUI
+     - Cola principal (`orders`, `alerts`, `billing`, `delivery`) → Para procesamiento
+     - Cola de monitoreo (`orders_monitor`, `alerts_monitor`, `billing_monitor`, `delivery_monitor`) → Para la GUI
 
 3. **Orden de Inicio**:
    ```
@@ -123,6 +131,53 @@ Monitorea inventario y envía alertas cuando el stock es bajo.
 - Envía a 2 colas: `alerts` y `alerts_monitor`
 - Se ejecuta una vez y termina
 
+#### 💵 `producer/billing.service.py`
+Genera facturas de compra para la cola `billing`.
+
+**Mensajes que envía**:
+```python
+{
+    "invoice_id": "INV-1001",
+    "customer": "Laura",
+    "item": "Capuchino",
+    "quantity": 2,
+    "unit_price": 3.50,
+    "total": 7.00,
+    "status": "pending",
+    "timestamp": "2025-10-14T13:16:08Z"
+}
+```
+
+**Comportamiento**:
+- Genera 4 facturas con datos aleatorios
+- Calcula totales automáticamente
+- Pausa de 1.5 segundos entre mensajes
+- Envía a 2 colas: `billing` y `billing_monitor`
+- Se ejecuta una vez y termina
+
+#### 🚚 `producer/delivery.service.py`
+Genera órdenes de envío para la cola `delivery`.
+
+**Mensajes que envía**:
+```python
+{
+    "delivery_id": "DEL-2001",
+    "order_id": "ORD-101",
+    "customer": "Yeison",
+    "address": "Calle 45 #12-34, Bogotá",
+    "status": "pending",
+    "estimated_time_minutes": 45,
+    "timestamp": "2025-10-14T13:16:10Z"
+}
+```
+
+**Comportamiento**:
+- Genera 4 órdenes de envío
+- Estados posibles: pending, in_transit, out_for_delivery
+- Pausa de 1.5 segundos entre mensajes
+- Envía a 2 colas: `delivery` y `delivery_monitor`
+- Se ejecuta una vez y termina
+
 ### 3. Consumidores JavaScript (`js-consumers`)
 
 #### ☕ `consumer/kitchen.service.js`
@@ -157,6 +212,38 @@ Procesa alertas de inventario de la cola `alerts`.
 - Reconexión automática en caso de error
 - Ejecución continua
 
+#### 💰 `consumer/billing.service.js`
+Procesa facturas de la cola `billing`.
+
+**Función**:
+```javascript
+[Billing Service] Procesando factura INV-1001 - Cliente: Laura - Total: $7.00
+[Billing Service] Procesando factura INV-1002 - Cliente: Carlos - Total: $12.50
+```
+
+**Características**:
+- Consume mensajes de la cola `billing`
+- Procesa un mensaje a la vez (`prefetch: 1`)
+- Confirma mensajes después de procesarlos (`ack`)
+- Reconexión automática en caso de error
+- Ejecución continua
+
+#### 🚛 `consumer/delivery.service.js`
+Procesa órdenes de envío de la cola `delivery`.
+
+**Función**:
+```javascript
+[Delivery Service] Procesando envío DEL-2001 - Cliente: Yeison - Estado: pending (45 min)
+[Delivery Service] Procesando envío DEL-2002 - Cliente: María - Estado: in_transit (30 min)
+```
+
+**Características**:
+- Consume mensajes de la cola `delivery`
+- Procesa un mensaje a la vez (`prefetch: 1`)
+- Confirma mensajes después de procesarlos (`ack`)
+- Reconexión automática en caso de error
+- Ejecución continua
+
 ### 4. API Service (`api-service`)
 
 Servicio Node.js/Express que proporciona:
@@ -176,6 +263,8 @@ Servicio Node.js/Express que proporciona:
 // API consume SOLO de colas de monitoreo
 orders_monitor → Captura copias de pedidos
 alerts_monitor → Captura copias de alertas
+billing_monitor → Captura copias de facturas
+delivery_monitor → Captura copias de envíos
 ```
 
 **Ventaja**: No compite con los consumidores reales por los mensajes.
@@ -184,10 +273,16 @@ alerts_monitor → Captura copias de alertas
 
 Interfaz React con Nginx que muestra:
 
-- 📊 Dashboard con lista de mensajes
+- 📊 Dashboard con lista de mensajes en tiempo real
 - 🔴/🟢 Estado de conexión WebSocket
-- 📝 Formulario para enviar nuevos mensajes
+- 🎯 **Filtros por tipo de mensaje** (Todos, Pedidos, Alertas, Facturas, Envíos)
+- 📝 Formulario para enviar nuevos mensajes con 4 pestañas:
+  - 🛒 **Pedidos** (azul)
+  - ⚠️ **Alertas** (amarillo)
+  - 💵 **Facturas** (púrpura)
+  - 🚚 **Envíos** (verde)
 - ⚡ Actualización en tiempo real vía WebSocket
+- 🎨 Modo oscuro con colores distintivos por tipo de mensaje
 
 **Tecnologías**:
 - React + TypeScript
@@ -216,6 +311,26 @@ Interfaz React con Nginx que muestra:
    └─► alerts_monitor ──► api-service captura ──► GUI muestra
 ```
 
+### Flujo de Facturas (Billing)
+
+```
+1. billing.service.py envía factura
+   ↓
+2. Factura duplicada va a:
+   ├─► billing queue ──► billing.service.js procesa
+   └─► billing_monitor ──► api-service captura ──► GUI muestra
+```
+
+### Flujo de Envíos (Delivery)
+
+```
+1. delivery.service.py envía orden de envío
+   ↓
+2. Orden duplicada va a:
+   ├─► delivery queue ──► delivery.service.js procesa
+   └─► delivery_monitor ──► api-service captura ──► GUI muestra
+```
+
 ### ¿Por qué 2 colas por tipo?
 
 **Problema sin colas duales**:
@@ -242,15 +357,19 @@ rabbitmq/
 │   ├── Dockerfile
 │   ├── requirements.txt
 │   └── producer/
-│       ├── order.service.py    # Genera pedidos
-│       └── inventory.service.py # Genera alertas de inventario
+│       ├── order.service.py       # Genera pedidos
+│       ├── inventory.service.py   # Genera alertas de inventario
+│       ├── billing.service.py     # Genera facturas
+│       └── delivery.service.py    # Genera órdenes de envío
 │
 ├── js/                         # Servicios JavaScript (Consumidores)
 │   ├── Dockerfile
 │   ├── package.json
 │   └── consumer/
 │       ├── kitchen.service.js      # Procesa pedidos
-│       └── notification.service.js # Procesa alertas
+│       ├── notification.service.js # Procesa alertas
+│       ├── billing.service.js      # Procesa facturas
+│       └── delivery.service.js     # Procesa envíos
 │
 ├── api/                        # API REST y WebSocket
 │   ├── Dockerfile
@@ -265,8 +384,9 @@ rabbitmq/
     └── src/
         ├── components/
         │   ├── Dashboard.tsx       # Componente principal
-        │   ├── MessageForm.tsx     # Formulario de envío
-        │   └── MessageList.tsx     # Lista de mensajes
+        │   ├── MessageForm.tsx     # Formulario de envío (4 pestañas)
+        │   ├── MessageList.tsx     # Lista con filtros por tipo
+        │   └── MessageItem.tsx     # Tarjeta de mensaje individual
         ├── services/
         │   └── api.ts             # Cliente HTTP
         └── utils/
@@ -363,17 +483,21 @@ docker compose down --remove-orphans
 
 ### Colas Principales
 
-| Cola | Propósito | Consumidor | Mensajes |
-|------|-----------|------------|----------|
+| Cola | Propósito | Consumidor | Tipo de Mensaje |
+|------|-----------|------------|-----------------|
 | `orders` | Pedidos para procesar | kitchen.service.js | Orders |
 | `alerts` | Alertas para notificar | notification.service.js | Alerts |
+| `billing` | Facturas para procesar | billing.service.js | Billing |
+| `delivery` | Envíos para gestionar | delivery.service.js | Delivery |
 
 ### Colas de Monitoreo
 
-| Cola | Propósito | Consumidor | Mensajes |
-|------|-----------|------------|----------|
+| Cola | Propósito | Consumidor | Tipo de Mensaje |
+|------|-----------|------------|-----------------|
 | `orders_monitor` | Copias para GUI | api-service | Orders |
 | `alerts_monitor` | Copias para GUI | api-service | Alerts |
+| `billing_monitor` | Copias para GUI | api-service | Billing |
+| `delivery_monitor` | Copias para GUI | api-service | Delivery |
 
 ### Verificar colas
 
@@ -387,11 +511,15 @@ docker exec rabbitmq rabbitmqctl list_consumers
 
 Salida esperada:
 ```
-queue_name        messages  consumers
-orders           0         1
-alerts           0         1
-orders_monitor   0         1
-alerts_monitor   0         1
+queue_name          messages  consumers
+orders              0         1
+alerts              0         1
+billing             0         1
+delivery            0         1
+orders_monitor      0         1
+alerts_monitor      0         1
+billing_monitor     0         1
+delivery_monitor    0         1
 ```
 
 ## 🌐 Endpoints del API
@@ -450,6 +578,36 @@ Envía un nuevo mensaje a RabbitMQ.
 }
 ```
 
+**Request (Billing):**
+```json
+{
+  "queue": "billing",
+  "message": {
+    "invoice_id": "INV-999",
+    "customer": "Juan Pérez",
+    "item": "Café Latte",
+    "quantity": 2,
+    "unit_price": 4.50,
+    "total": 9.00
+  }
+}
+```
+
+**Request (Delivery):**
+```json
+{
+  "queue": "delivery",
+  "message": {
+    "delivery_id": "DEL-999",
+    "order_id": "ORD-999",
+    "customer": "María García",
+    "address": "Carrera 10 #20-30, Medellín",
+    "status": "pending",
+    "estimated_time_minutes": 45
+  }
+}
+```
+
 **Response:**
 ```json
 {
@@ -483,7 +641,7 @@ docker compose logs api-service | grep "New message"
 3. Verificar consumidores duplicados:
 ```bash
 docker exec rabbitmq rabbitmqctl list_consumers
-# Debería haber solo 1 consumer por cola (orders, alerts)
+# Debería haber solo 1 consumer por cola (orders, alerts, billing, delivery)
 ```
 
 ### Contenedores huérfanos
@@ -534,27 +692,67 @@ docker compose logs rabbitmq
 ### Enviar pedido desde la GUI
 
 1. Abrir http://localhost:3000
-2. Seleccionar "orders" en el dropdown
+2. Seleccionar la pestaña 🛒 **"Pedidos"**
 3. Llenar el formulario:
-   - Order ID: ORD-200
-   - Item: Mocha
-   - Quantity: 1
-   - User: María
-4. Click "Send Message"
+   - ID del Pedido: ORD-200
+   - Producto: Mocha
+   - Cantidad: 1
+   - Cliente: María
+4. Click "Enviar Pedido"
 5. Observar:
-   - Mensaje aparece en la lista
+   - Mensaje aparece en la lista (color azul)
    - `kitchen.service.js` lo procesa (ver logs)
 
 ### Enviar alerta desde la GUI
 
-1. Seleccionar "alerts"
+1. Seleccionar la pestaña ⚠️ **"Alertas"**
 2. Llenar:
-   - Item: Tazas
-   - Stock Level: 2
-3. Click "Send Message"
+   - Producto: Tazas
+   - Nivel de Stock: 2
+   - Umbral Mínimo: 5
+3. Click "Enviar Alerta"
 4. Observar:
-   - Alerta aparece en la lista
+   - Alerta aparece en la lista (color amarillo)
    - `notification.service.js` la procesa (ver logs)
+
+### Enviar factura desde la GUI
+
+1. Seleccionar la pestaña 💵 **"Facturas"**
+2. Llenar:
+   - ID de Factura: INV-200
+   - Cliente: Carlos Rodríguez
+   - Producto: Espresso
+   - Cantidad: 2
+   - Precio Unitario: 3.50
+   - Total: 7.00 (calculado automáticamente)
+3. Click "Enviar Factura"
+4. Observar:
+   - Factura aparece en la lista (color verde)
+   - `billing.service.js` la procesa (ver logs)
+
+### Enviar orden de envío desde la GUI
+
+1. Seleccionar la pestaña 🚚 **"Envíos"**
+2. Llenar:
+   - ID de Envío: DEL-200
+   - ID del Pedido: ORD-200
+   - Cliente: Ana Martínez
+   - Dirección: Calle 50 #25-15, Cali
+   - Estado: Pendiente
+   - Tiempo Estimado: 30 minutos
+3. Click "Enviar Orden de Envío"
+4. Observar:
+   - Orden aparece en la lista (color rojo)
+   - `delivery.service.js` la procesa (ver logs)
+
+### Filtrar mensajes por tipo
+
+En la GUI, utiliza los botones de filtro:
+- 📋 **Todos**: Muestra todos los mensajes
+- 🛒 **Pedidos**: Solo pedidos (azul)
+- ⚠️ **Alertas**: Solo alertas (amarillo)
+- 💵 **Facturas**: Solo facturas (verde)
+- 🚚 **Envíos**: Solo envíos (rojo)
 
 ## 📚 Recursos Adicionales
 
@@ -568,6 +766,41 @@ Este proyecto demuestra conceptos clave:
 
 - ✅ **Desacoplamiento**: Productores y consumidores no se conocen
 - ✅ **Escalabilidad**: Fácil agregar más consumers
+- ✅ **Resiliencia**: Los mensajes persisten en RabbitMQ
+- ✅ **Observabilidad**: GUI muestra todo en tiempo real
+
+## ✨ Características de la GUI
+
+### Diseño Moderno
+- 🎨 **Modo oscuro** con gradientes y efectos glassmorphism
+- 🎯 **Navegación por pestañas** para diferentes tipos de mensajes
+- 📱 **Diseño responsivo** que se adapta a diferentes pantallas
+- ⚡ **Animaciones suaves** para transiciones y efectos hover
+
+### Sistema de Colores
+Cada tipo de mensaje tiene un color distintivo:
+- 🔵 **Azul (#3b82f6)** - Pedidos (Orders)
+- 🟡 **Amarillo (#eab308)** - Alertas (Alerts)
+- 🟢 **Verde (#22c55e)** - Facturas (Billing)
+- 🔴 **Rojo (#ef4444)** - Envíos (Delivery)
+
+### Filtros Inteligentes
+- Botones de filtro rápido en la parte superior
+- Contador de mensajes por tipo
+- Transiciones animadas al cambiar de filtro
+
+### Visualización de Mensajes
+Cada tarjeta de mensaje muestra:
+- 🏷️ **Icono distintivo** según el tipo
+- 🎨 **Borde de color** identificativo
+- 📋 **Detalles formateados** específicos del tipo
+- ⏰ **Timestamp** de cuando fue recibido
+
+### Formularios Intuitivos
+- ✅ **Validación en tiempo real**
+- 🔢 **Cálculo automático** de totales en facturas
+- 📝 **Placeholders descriptivos**
+- 🎯 **Focus states** con colores temáticos
 - ✅ **Resiliencia**: Mensajes persisten si un consumer falla
 - ✅ **Observabilidad**: Monitoreo sin interferir con el procesamiento
 - ✅ **Event-Driven**: Comunicación asíncrona mediante eventos
