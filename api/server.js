@@ -25,7 +25,7 @@ const connectToRabbitMQ = async (retries = 30) => {
             
             rabbitChannel = channel;
             
-            const queues = ['orders', 'alerts'];
+            const queues = ['orders', 'alerts', 'billing', 'delivery'];
             
             for (const queueName of queues) {
                 //await channel.assertQueue(queueName, { durable: true });
@@ -107,7 +107,7 @@ app.post('/api/messages', async (req, res) => {
             return res.status(400).json({ error: 'Queue and message are required' });
         }
         
-        if (!['orders', 'alerts'].includes(queue)) {
+        if (!['orders', 'alerts', 'billing', 'delivery'].includes(queue)) {
             return res.status(400).json({ error: 'Invalid queue' });
         }
         
@@ -139,6 +139,35 @@ app.post('/api/messages', async (req, res) => {
                 item: message.item,
                 stock_level: message.stock_level,
                 threshold: message.threshold || 5,
+                timestamp: message.timestamp || new Date().toISOString()
+            };
+        } else if (queue === 'billing') {
+            if (!message.invoice_id || !message.customer || !message.item || !message.total) {
+                return res.status(400).json({ error: 'Billing must include invoice_id, customer, item, and total' });
+            }
+            
+            messagePayload = {
+                invoice_id: message.invoice_id,
+                customer: message.customer,
+                item: message.item,
+                quantity: message.quantity || 1,
+                unit_price: message.unit_price || 0,
+                total: message.total,
+                status: message.status || 'pending',
+                timestamp: message.timestamp || new Date().toISOString()
+            };
+        } else if (queue === 'delivery') {
+            if (!message.delivery_id || !message.customer || !message.address) {
+                return res.status(400).json({ error: 'Delivery must include delivery_id, customer, and address' });
+            }
+            
+            messagePayload = {
+                delivery_id: message.delivery_id,
+                order_id: message.order_id || 'N/A',
+                customer: message.customer,
+                address: message.address,
+                status: message.status || 'pending',
+                estimated_time_minutes: message.estimated_time_minutes || 30,
                 timestamp: message.timestamp || new Date().toISOString()
             };
         }
