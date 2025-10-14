@@ -28,7 +28,7 @@ services:
       - rabbitnet
     volumes:
       - ./py:/app
-    command: sh -c "python producer/order.service.py && python producer/inventory.service.py"
+    command: sh -c "python producer/order.service.py && python producer/inventory.service.py && python producer/billing.service.py && python producer/delivery.service.py"
     restart: "no"  # Don't restart, producers run once
 
   # API service for WebSocket and message monitoring
@@ -62,7 +62,7 @@ services:
     volumes:
       - ./js:/app
       - /app/node_modules
-    command: sh -c "node consumer/kitchen.service.js & node consumer/notification.service.js"
+    command: sh -c "node consumer/kitchen.service.js & node consumer/notification.service.js & node consumer/billing.service.js & node consumer/delivery.service.js"
     restart: unless-stopped
 
   # Web GUI for monitoring messages
