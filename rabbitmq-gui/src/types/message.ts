@@ -21,3 +21,24 @@ export interface AlertMessage {
   threshold: number;
   timestamp: string;
 }
+
+export interface BillingMessage {
+  invoice_id: string;
+  customer: string;
+  item: string;
+  quantity: number;
+  unit_price: number;
+  total: number;
+  status: string;
+  timestamp?: string;
+}
+
+export interface DeliveryMessage {
+  delivery_id: string;
+  order_id: string;
+  customer: string;
+  address: string;
+  status: string;
+  estimated_time_minutes: number;
+  timestamp?: string;
+}
