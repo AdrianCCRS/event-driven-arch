@@ -1,0 +1,31 @@
+services:
+  # Python producers (runs once, sends messages then exits)
+  py-producers:
+    build: ./py
+    container_name: py-producers
+    networks:
+      - rabbitnet
+    volumes:
+      - ./py:/app
+    ports:
+      - "9596:9596"
+    command: sh -c "python producer/billing.service.py && python producer/delivery.service.py"
+    restart: "no"  # Don't restart, producers run once
+
+  # JavaScript consumers (runs continuously)
+  js-consumers:
+    build: ./js
+    container_name: js-consumers
+    networks:
+      - rabbitnet
+    ports:
+     -  "9595:9595"
+    volumes:
+      - ./js:/app
+      - /app/node_modules
+    command: sh -c "node consumer/billing.service.js & node consumer/delivery.service.js"
+    restart: unless-stopped
+
+networks:
+  rabbitnet:
+    driver: bridge
